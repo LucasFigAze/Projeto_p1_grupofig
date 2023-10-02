@@ -13,9 +13,11 @@ class Game:
     def __init__(self):
         self.largura = 700
         self.altura = 700
+        self.background = pygame.image.load('uma-multidao-de-pessoas-esta-reunida-em-um-clube-com-uma-luz-rosa-e-roxa.jpg')
+        self.background = pygame.transform.scale(self.background, (self.largura, self.altura))
     
     def set_font(self):
-        fonte = pygame.font.SysFont('arial', 40, True, True)
+        fonte = pygame.font.SysFont('arial', 30, True, True)
         return fonte
 
     def set_mode(self):
@@ -120,11 +122,11 @@ criar_blocos('blue', 1, lista_blocos )
 criar_blocos('green',1, lista_blocos )
 
 while True:
+    tela_jogo.blit(game.background, (0, 0))
     andando = False
-    tela_jogo.fill((0, 0, 0))
-    texto_formatado = game.render(fonte=fonte, texto=f'Verde: {pontos_verde}')
-    texto_formatado_2 = game.render(fonte=fonte, texto=f'Azul: {pontos_azul}')
-    texto_formatado_3 = game.render(fonte=fonte, texto=f'Vermelho: {pontos_vermelho}')
+    texto_formatado = game.render(fonte=fonte, texto=f'Big Apple: {pontos_verde}')
+    texto_formatado_2 = game.render(fonte=fonte, texto=f'Água: {pontos_azul}')
+    texto_formatado_3 = game.render(fonte=fonte, texto=f'Suco de Morango: {pontos_vermelho}')
 
     for event in pygame.event.get():
         if event.type == QUIT:
