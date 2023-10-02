@@ -2,13 +2,9 @@ import pygame
 from pygame.locals import *
 from sys import exit
 from random import randint
+
 cont = 0
 pygame.init()
-############## ajeitar a musica de fundo ################
-#musica_de_fundo = pygame.mixer.music.load('Daniel Birch - Dancing With Fire.mp3')
-#pygame.mixer.music.play(-1)
-
-#barulho_colisao = pygame.mixer.Sound('mario_moeda_efeito_sonoro_toquesengracadosmp3.com.mp3')
 
 class Game:
     largura: int
@@ -19,7 +15,6 @@ class Game:
         self.altura = 700
     
     def set_font(self):
-        # texto em arial, tamanho 40, negrito true e itálico true
         fonte = pygame.font.SysFont('arial', 40, True, True)
         return fonte
 
@@ -45,7 +40,7 @@ class Block:
     def create_rect(self, tela_jogo, color):
         bloco = pygame.draw.rect(tela_jogo, color, (self.x, self.y, 50, 50))      
         return bloco
-
+    
     def create_security(self, tela_jogo):
         all_sprites.draw(tela_jogo)
 
@@ -67,15 +62,13 @@ class Segurança(pygame.sprite.Sprite):
         self.sprite_atual = 0
         self.image = self.sprites[self.sprite_atual]
         self.image = pygame.transform.scale(self.image, (36*2, 45*2))
-
         self.rect = self.image.get_rect()
         self.rect.center = x, y
 
     def move(self, x ,y):
         self.rect = self.image.get_rect()
         self.rect.center = x, y
-    
-    #Animação do boneco correndo
+
     def run_animation(self):
         if self.sprite_atual == 0:
             self.sprite_atual = 1
@@ -90,16 +83,12 @@ class Segurança(pygame.sprite.Sprite):
         self.image = self.sprites[self.sprite_atual]
         self.image = pygame.transform.scale(self.image, (36*2, 45*2))
         
-    #Quando clicar 'a' girar boneco
     def flip(self):
         self.image = pygame.transform.flip(self.image,True,False)
-        
-
 
 all_sprites = pygame.sprite.Group()
 segurança = Segurança(0,0)
 all_sprites.add(segurança)
-
 
 game = Game()
 fonte = game.set_font()
@@ -111,64 +100,51 @@ move_speed = 0.3
 x = game.largura/2
 y = game.altura/2
 
-# posição random bloco verde
-x_verde = randint(10,600)
-y_verde = randint(20,500)
-
-# posição random bloco azul
-x_azul = randint(30, 400)
-y_azul = randint(40, 300)
-
-# posição random bloco vermelho
-x_vermelho = randint(50, 400)
-y_vermelho = randint(60, 300)
-
 pontos_verde = 0
 pontos_azul = 0
 pontos_vermelho = 0
-
-
-flipped=False
+flipped = False
 
 def criar_blocos(cor, quantidade, lista_blocos):
     for _ in range(quantidade):
         x = randint(10, 600)
         y = randint(20, 500)
         bloco = Block(x, y)
-        bloco.create_rect(tela_jogo,'red')
+        bloco.create_rect(tela_jogo, color=cor)
         bloco.create_security(tela_jogo)
         lista_blocos.append({'bloco': bloco, 'cor': cor})
 
 lista_blocos = []
-criar_blocos((200, 0, 0), 2, lista_blocos)
-#relogio = pygame.time.Clock()
+criar_blocos('red', 1, lista_blocos)
+criar_blocos('blue', 1, lista_blocos )
+criar_blocos('green',1, lista_blocos )
 
-#criando o loop principal
 while True:
-    #relogio.tick(60)
-    andando=False
-    tela_jogo.fill((0,0,0))
-    texto_formatado = game.render(texto=f'Verde: {pontos_verde}', fonte=fonte)
-    texto_formatado_2 = game.render(texto=f'Azul: {pontos_azul}', fonte=fonte)
-    texto_formatado_3 = game.render(texto=f'Vermelho: {pontos_vermelho}', fonte=fonte)
+    andando = False
+    tela_jogo.fill((0, 0, 0))
+    texto_formatado = game.render(fonte=fonte, texto=f'Verde: {pontos_verde}')
+    texto_formatado_2 = game.render(fonte=fonte, texto=f'Azul: {pontos_azul}')
+    texto_formatado_3 = game.render(fonte=fonte, texto=f'Vermelho: {pontos_vermelho}')
+
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             exit()
+
     if pygame.key.get_pressed()[K_a]:
         flipped = True
         x = x - move_speed
         andando = True
     if pygame.key.get_pressed()[K_d]:
         x = x + move_speed
-        andando=True
+        andando = True
         flipped = False
     if pygame.key.get_pressed()[K_w]:
         y = y - move_speed
-        andando=True
+        andando = True
     if pygame.key.get_pressed()[K_s]:
         y = y + move_speed
-        andando=True
+        andando = True
     if not andando:
         segurança.idle()
     else:
@@ -176,19 +152,24 @@ while True:
     if flipped:
         segurança.flip()
 
-    bloco_vermelho = Block(x=x_vermelho, y=y_vermelho)
-    rect_vermelho = bloco_vermelho.create_rect(tela_jogo, color=(200,0,0))
-    
-    bloco_azul = Block(x=x_azul, y=y_azul)
-    rect_azul = bloco_azul.create_rect(tela_jogo, color=(0,0,200))
-    
-    bloco_verde = Block(x=x_verde, y=y_verde)
-    rect_verde = bloco_verde.create_rect(tela_jogo, color=(0,200,0))
+    for bloco_info in lista_blocos:
+        bloco = bloco_info['bloco']
+        cor = bloco_info['cor']
+        rect = bloco.create_rect(tela_jogo, color=cor)
 
-    segurança.move(x,y)
+        if segurança.rect.colliderect(rect):
+            bloco.x = randint(10, 600)
+            bloco.y = randint(20, 500)
+            if cor == 'red':  # Vermelho
+                pontos_vermelho += 1
+            elif cor == 'blue':  # Azul
+                pontos_azul += 1
+            elif cor == 'green':  # Verde
+                pontos_verde += 1
+
+    segurança.move(x, y)
     all_sprites.draw(tela_jogo)
     
-# Ultrapassando os limites da tela volta do outro lado.
     if x < -100:
         x = 700 + 100
     elif x > 700 + 100:
@@ -197,22 +178,6 @@ while True:
         y = 700 + 100
     elif y > 700 + 100:
         y = -100
-
-    if segurança.rect.colliderect(rect_verde):
-        x_verde = randint(10,600)
-        y_verde = randint(20,500)
-        pontos_verde += 1
-        #barulho_colisao.play()
-    if segurança.rect.colliderect(rect_azul):
-        x_azul = randint(30, 400)
-        y_azul = randint(40, 300)
-        pontos_azul += 1
-        #barulho_colisao.play()
-    if segurança.rect.colliderect(rect_vermelho):
-        x_vermelho = randint(50, 400)
-        y_vermelho = randint(60, 300)
-        pontos_vermelho += 1
-        #barulho_colisao.play()
 
     tela_jogo.blit(texto_formatado, (400, 40))
     tela_jogo.blit(texto_formatado_2, (400, 0))
