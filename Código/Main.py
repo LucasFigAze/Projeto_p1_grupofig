@@ -5,6 +5,10 @@ from random import randint
 
 cont = 0
 pygame.init()
+pygame.mixer.init()
+
+collision_sound = pygame.mixer.Sound('mario_moeda_efeito_sonoro_toquesengracadosmp3.com.mp3')
+collision_sound.set_volume(0.3)
 
 class Game:
     largura: int
@@ -96,6 +100,8 @@ game = Game()
 fonte = game.set_font()
 tela_jogo = game.set_mode()
 game.set_caption()
+pygame.mixer.music.load('Daniel Birch - Dancing With Fire.mp3')
+pygame.mixer.music.play(-1) 
 
 move_speed = 0.3
 
@@ -160,6 +166,7 @@ while True:
         rect = bloco.create_rect(tela_jogo, color=cor)
 
         if segurança.rect.colliderect(rect):
+            collision_sound.play()
             bloco.x = randint(10, 600)
             bloco.y = randint(20, 500)
             if cor == 'red':  # Vermelho
